@@ -150,6 +150,34 @@ off the table or self-collide), and a hardware E-stop assumed on the motor bus.
   orchestrator/driver) or stale latched `/sim_board_fen` pollutes the next run.
   NEXT (Phase 1+): Gazebo Jetty physics with real piece/board models, then hardware (BLDC + 3D-printed
   cycloidal joints + moteus over CAN-FD via the custom ros2_control hardware_interface).
+- **PHASE 1 STARTED — single-actuator bring-up KIT authored (no hardware bought yet).** Scope chosen
+  by the user: "prepare the bring-up kit" + the single-joint BOM/wiring (so parts can be ordered AND
+  the software is ready to run on connection). First joint = **least-risky wrist-class (J5/J6) bench
+  joint**; output encoder = **AS5047P (14-bit SPI) on moteus-c1 aux2**; onboard encoder stays the
+  commutation source; ~9:1 single-stage cycloidal (`rotor_to_output_ratio = 1/9 = 0.111111`,
+  output-per-rotor fraction); conservative limits (`max_current_A 2.0`, `servopos ±0.2 rev/±72°`,
+  watchdog 0.5 s). **moteus 1.0.0** installed via pip (`--user --break-system-packages`; lib +
+  `moteus_tool`, `Fdcanusb` transport). Kit lives in **`hardware/joint_bringup/`** (standalone Python,
+  NOT a ROS package — ros2_control comes in Phase 2): `README.md` (run order + acceptance gate),
+  `BOM_single_joint.md` (India sourcing, import-first), `wiring.md` (AUX2↔AS5047P SPI pin table +
+  power-on/E-stop checklist), `config/wrist_joint.cfg` (`moteus_tool --restore-config` format, 32
+  register lines), `moteus_joint_config.md`, `calibration_and_tuning.md`, and
+  `bringup/{connect_check,configure_joint,step_repeatability_test}.py` + `requirements.txt`. The
+  acceptance gate = `step_repeatability_test.py` (logs commanded vs AS5047P output position to CSV;
+  PASS = repeatability ≤0.5° AND |accuracy| ≤1.0° at the output, backlash reported). Built via a
+  workflow then ADVERSARIALLY VERIFIED: **zero hallucinated registers, zero hallucinated moteus-API
+  calls** (checked vs the moteus reference + the *installed* `moteus_tool.py` source), all 3 scripts
+  `py_compile` + run `--help`/`--dry-run`/`--plan-only` clean with NO device; 6 doc-accuracy nits all
+  fixed (e.g. `aux2.spi.rate_hz` 12 MHz default — there is no `motor_position.spi.rate_hz`; the
+  50k–400k range is `i2c.i2c_hz`; `output.sign` is only *temporarily* forced to 1 during
+  `--calibrate` then restored — reverse direction via `sources.1.sign`; `--cal-voltage` is deprecated
+  → use `--cal-motor-power`; `--calibrate` clobbers `sources.1.pll_filter_hz` so the cfg MUST be
+  applied AFTER calibration; added a real `--servopos-limit-deg` abort guard to the acceptance test).
+  GOTCHA: on WSL2 the fdcanusb needs `usbipd attach --busid <id> --wsl` before `/dev/fdcanusb`
+  appears; native on the Pi 5. HARDWARE-BLOCKED TODOs (marked in the files): motor SKU→`--cal-motor-poles`,
+  as-built ratio→`rotor_to_output_ratio`, AUX2 A/B/C/D→SCK/MISO/MOSI/CS + CAN PH-3 silk order (METER
+  vs the c1 rendered-pinout SVG before crimping), `output.source` index (from live `--dump-config`),
+  `output.offset` (via `--zero-offset`), real `servopos` sweep, and the hand-tuned position gains.
 - The colcon workspace lives **in this repo** (`<repo>/src/...`, already on the Linux fs — not
   `/mnt/c/...`, whose 9p bridge is much slower for colcon builds).
 - Languages: **Python** (vision, chess, orchestration), **C++** (`ros2_control` hardware_interface),

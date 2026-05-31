@@ -1,0 +1,30 @@
+# =============================================================================
+# requirements.txt  --  Phase-1 wrist-joint bring-up scripts (host side)
+# =============================================================================
+# Runtime for connect_check.py / configure_joint.py / step_repeatability_test.py.
+# The dev box (WSL2 Ubuntu 26.04) already has moteus 1.0.0 installed; this file
+# pins it for reproducibility on the Raspberry Pi 5 deployment brain too.
+#
+# Install (prefer a venv; on a system Python use --break-system-packages):
+#     pip install -r requirements.txt
+#
+# `moteus` pulls in its own deps transitively, notably:
+#   * python-can   (CAN transport abstraction; the PythonCan transport path)
+#   * pyserial     (we import `serial` directly to catch SerialException on a
+#                   missing fdcanusb; it backs the fdcanusb serial port)
+#   * aioserial    (async serial used by the Fdcanusb transport)
+# They are listed below (unpinned) only to document the dependency surface;
+# `moteus` itself selects compatible versions. moteus_tool ships inside the
+# `moteus` package (python3 -m moteus.moteus_tool) -- no separate install.
+#
+# NOTE: the moteus GUI / tview (moteus_gui) is a SEPARATE optional package
+# (`moteus-gui`) used for manual calibration + PID tuning; it is intentionally
+# NOT required by these headless scripts. Install it on demand:
+#     pip install moteus-gui   # then: python3 -m moteus_gui.tview --target 1
+
+moteus==1.0.0
+
+# --- transitive (documented; let moteus resolve exact versions) --------------
+python-can
+pyserial
+aioserial
