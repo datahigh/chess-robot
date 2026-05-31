@@ -1,0 +1,12 @@
+# Ask Stockfish (opened lazily) for its reply to the current authoritative game
+# state and push it onto the engine board. Returns the move plus post-move game
+# status so the orchestrator can detect end-of-game.
+
+# (empty request)
+---
+bool ok          # true if the engine produced a legal move
+string uci       # engine move in UCI, e.g. "e7e5" (empty if ok is false)
+string san       # engine move in SAN, e.g. "e5" (empty if ok is false)
+bool game_over   # true if the game is over after applying this move
+string result    # game result if over, e.g. "1-0", "0-1", "1/2-1/2" (else empty)
+string fen       # FEN of the board AFTER the engine move

@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Static world scene: the standard board and the capture graveyard tray.
+       Each is ONE link carrying many <visual> elements (so the 64 squares /
+       16 slots add no extra TF frames). Attached to the world by fixed joints;
+       no inertial needed (static, fixed). Requires materials.xacro + arm_params.xacro. -->
+
+  <!-- One checkerboard square, recursive over idx = 0..63 (file = idx//8 along X,
+       rank = idx%8 along Y). Emitted as <visual> children of the board link. -->
+  <xacro:macro name="board_tile" params="idx">
+    <xacro:if value="${idx &lt; 64}">
+      <visual>
+        <origin xyz="${(idx//8 - 3.5)*square_size} ${(idx%8 - 3.5)*square_size} 0.0016"
+                rpy="0 0 0"/>
+        <geometry><box size="${square_size*0.96} ${square_size*0.96} 0.003"/></geometry>
+        <!-- a1 (idx 0, file a + rank 1) is dark, per standard board orientation. -->
+        <material name="${'board_dark' if (idx//8 + idx%8) % 2 == 0 else 'board_light'}"/>
+      </visual>
+      <xacro:board_tile idx="${idx + 1}"/>
+    </xacro:if>
+  </xacro:macro>
+
+  <!-- One graveyard slot marker, recursive over idx = 0..15 (row = idx//8, col = idx%8). -->
+  <xacro:macro name="gy_slot" params="idx">
+    <xacro:if value="${idx &lt; 16}">
+      <visual>
+        <origin xyz="${(idx//8 - 0.5)*(gy_row1_x - gy_row0_x)} ${(idx%8 - 3.5)*gy_pitch} 0.002"
+                rpy="0 0 0"/>
+        <geometry><cylinder radius="${gy_slot_r}" length="0.004"/></geometry>
+        <material name="graveyard_slot"/>
+      </visual>
+      <xacro:gy_slot idx="${idx + 1}"/>
+    </xacro:if>
+  </xacro:macro>
+
+  <!-- Board centred at the world origin, playing surface at z=0. -->
+  <xacro:macro name="build_board" params="parent">
+    <joint name="${parent}_to_board" type="fixed">
+      <parent link="${parent}"/>
+      <child  link="board"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+    <link name="board">
+      <visual>
+        <origin xyz="0 0 ${-board_thick/2.0}" rpy="0 0 0"/>
+        <geometry><box size="${board_outer} ${board_outer} ${board_thick}"/></geometry>
+        <material name="board_frame"/>
+      </visual>
+      <xacro:board_tile idx="0"/>
+      <collision>
+        <origin xyz="0 0 ${-board_thick/2.0}" rpy="0 0 0"/>
+        <geometry><box size="${board_outer} ${board_outer} ${board_thick}"/></geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+
+  <!-- Graveyard tray on the +X side; link frame at the tray centre. -->
+  <xacro:macro name="build_graveyard" params="parent">
+    <joint name="${parent}_to_graveyard" type="fixed">
+      <parent link="${parent}"/>
+      <child  link="graveyard"/>
+      <origin xyz="${(gy_row0_x + gy_row1_x)/2.0} ${gy_col0_y + 3.5*gy_pitch} 0" rpy="0 0 0"/>
+    </joint>
+    <link name="graveyard">
+      <visual>
+        <origin xyz="0 0 -0.005" rpy="0 0 0"/>
+        <geometry>
+          <box size="${(gy_row1_x - gy_row0_x) + 2*gy_slot_r + 0.012}
+                     ${7*gy_pitch + 2*gy_slot_r + 0.012}
+                     0.010"/>
+        </geometry>
+        <material name="graveyard"/>
+      </visual>
+      <xacro:gy_slot idx="0"/>
+      <collision>
+        <origin xyz="0 0 -0.005" rpy="0 0 0"/>
+        <geometry>
+          <box size="${(gy_row1_x - gy_row0_x) + 2*gy_slot_r + 0.012}
+                     ${7*gy_pitch + 2*gy_slot_r + 0.012}
+                     0.010"/>
+        </geometry>
+      </collision>
+    </link>
+  </xacro:macro>
+</robot>

@@ -1,0 +1,10 @@
+# Decompose a UCI move into the ordered list of primitive PieceActions the arm
+# must execute. Computed on the board state BEFORE the move is pushed, then the
+# move is pushed. World xyz for each action is filled from board_coordinates.yaml.
+
+# Move to realise, in UCI, e.g. "e2e4", "e1g1" (castle), "e7e8q" (promotion).
+string uci
+---
+bool ok                               # true if the move decomposed successfully
+chess_arm_interfaces/PieceAction[] actions  # ordered manipulation steps
+string message                        # human-readable detail / error reason

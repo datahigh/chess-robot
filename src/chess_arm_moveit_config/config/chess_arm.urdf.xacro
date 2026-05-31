@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="chess_arm">
+  <!-- ==========================================================================
+       MoveIt URDF wrapper for chess_arm_moveit_config.
+
+       The authoritative robot description lives in chess_arm_description. This
+       thin wrapper pulls it in and pins the two build-time args to the values
+       MoveIt needs:
+         ros2_control_hardware_type := mock_components  (offline sim)
+         with_world                 := false            (drop the board/graveyard
+                                                         scene; they become
+                                                         planning-scene collision
+                                                         objects later, NOT robot
+                                                         links)
+
+       The MoveItConfigsBuilder.robot_description(file_path=...) call resolves
+       paths relative to THIS package, so the wrapper keeps the launch files free
+       of absolute paths. The two args below are also forwarded explicitly by the
+       builder mappings in every launch file; declaring them here gives sane
+       defaults if this xacro is processed standalone, e.g.:
+
+         xacro config/chess_arm.urdf.xacro > /tmp/chess_arm_moveit.urdf
+       ========================================================================== -->
+
+  <xacro:arg name="ros2_control_hardware_type" default="mock_components"/>
+  <xacro:arg name="with_world" default="false"/>
+
+  <!-- Pull in the full 6-DOF arm + gripper + ros2_control description. The
+       included file reads the same $(arg ...) names from the shared xacro arg
+       namespace, so the values pinned above (or overridden via builder mappings)
+       flow straight through. -->
+  <xacro:include filename="$(find chess_arm_description)/urdf/chess_arm.urdf.xacro"/>
+</robot>

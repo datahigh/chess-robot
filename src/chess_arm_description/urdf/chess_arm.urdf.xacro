@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="chess_arm">
+  <!-- ==========================================================================
+       Top-level description for the 6-DOF chess arm.
+
+       Args:
+         ros2_control_hardware_type : mock_components (default) | gz | real
+         with_world                 : true (default) attaches the static board +
+                                      graveyard scene for RViz/reachability; set
+                                      false for MoveIt (scene -> planning-scene
+                                      collision objects instead of robot links).
+
+       Build/inspect standalone:
+         xacro chess_arm.urdf.xacro > /tmp/chess_arm.urdf
+         xacro chess_arm.urdf.xacro ros2_control_hardware_type:=gz with_world:=false
+       ========================================================================== -->
+
+  <xacro:arg name="ros2_control_hardware_type" default="mock_components"/>
+  <xacro:arg name="with_world" default="true"/>
+
+  <xacro:include filename="$(find chess_arm_description)/urdf/arm_params.xacro"/>
+  <xacro:include filename="$(find chess_arm_description)/urdf/materials.xacro"/>
+  <xacro:include filename="$(find chess_arm_description)/urdf/inertial_macros.xacro"/>
+  <xacro:include filename="$(find chess_arm_description)/urdf/arm.macros.xacro"/>
+  <xacro:include filename="$(find chess_arm_description)/urdf/gripper.macros.xacro"/>
+  <xacro:include filename="$(find chess_arm_description)/urdf/scene.macros.xacro"/>
+  <xacro:include filename="$(find chess_arm_description)/urdf/chess_arm.ros2_control.xacro"/>
+
+  <!-- World root frame (fixed frame in RViz / planning frame in MoveIt). -->
+  <link name="world"/>
+
+  <!-- Arm base placed in the world: centred on board X, 330 mm behind near edge. -->
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/>
+    <child  link="base_link"/>
+    <origin xyz="${base_x} ${base_y} 0" rpy="0 0 0"/>
+  </joint>
+
+  <xacro:build_arm/>
+  <xacro:build_gripper parent="link6"/>
+
+  <xacro:chess_arm_ros2_control hw_type="$(arg ros2_control_hardware_type)"/>
+
+  <xacro:if value="$(arg with_world)">
+    <xacro:build_board parent="world"/>
+    <xacro:build_graveyard parent="world"/>
+  </xacro:if>
+</robot>

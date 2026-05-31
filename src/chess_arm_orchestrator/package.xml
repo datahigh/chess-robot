@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>chess_arm_orchestrator</name>
+  <version>0.0.1</version>
+  <description>
+    Game-loop state machine for the chess-playing 6-DOF arm: triggers a turn,
+    detects changed squares (vision), resolves the human move and gets the
+    engine reply (brain), decomposes the reply into physical PieceActions, and
+    runs them through a pluggable executor (dry-run now, MoveIt later).
+    Includes a no-ROS dry-run that plays a full scripted game to prove the
+    orchestration logic end-to-end. Phase 0 of the chess-robot build
+    (ROS 2 Lyrical Luth).
+  </description>
+  <maintainer email="neildesh@gmail.com">neil</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>std_srvs</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>moveit_msgs</exec_depend>
+  <exec_depend>control_msgs</exec_depend>
+  <exec_depend>shape_msgs</exec_depend>
+  <exec_depend>chess_arm_interfaces</exec_depend>
+  <exec_depend>chess_arm_brain</exec_depend>
+  <exec_depend>chess_arm_vision</exec_depend>
+  <exec_depend>chess_arm_description</exec_depend>
+  <exec_depend>chess_arm_moveit_config</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>python3-chess</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

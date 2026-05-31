@@ -1,0 +1,12 @@
+# Resolve the human's move from the set of board squares vision reports as
+# changed. The engine holds the authoritative game state; the changed squares
+# are matched against python-chess legal_moves to recover the unique UCI move.
+# Handles capture / castling / en passant / promotion change patterns.
+
+# Squares whose occupancy changed since the previous turn, e.g. ["e2", "e4"].
+string[] changed_squares
+---
+bool ok          # true if exactly one legal move matches the changed squares
+string uci       # resolved move in UCI, e.g. "e2e4" (empty if ok is false)
+string san       # resolved move in SAN, e.g. "e4" (empty if ok is false)
+string message   # human-readable detail, especially on failure / ambiguity

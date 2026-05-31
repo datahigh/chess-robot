@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- 6-DOF serial chain macros. Zero pose = arm extended straight up (+Z),
+       tool pointing up; J2/J3 fold it over the board and J5 pitches the tool
+       down for a top-down grasp. Spherical wrist: J4/J5/J6 axes intersect at
+       the wrist centre (top of the forearm). Requires inertial_macros.xacro
+       and materials.xacro to be included by the caller. -->
+
+  <!-- A cylindrical segment spanning local 0..length along +Z (joint at its base). -->
+  <xacro:macro name="seg_link" params="name radius length mass material">
+    <link name="${name}">
+      <visual>
+        <origin xyz="0 0 ${length/2.0}" rpy="0 0 0"/>
+        <geometry><cylinder radius="${radius}" length="${length}"/></geometry>
+        <material name="${material}"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${length/2.0}" rpy="0 0 0"/>
+        <geometry><cylinder radius="${radius}" length="${length}"/></geometry>
+      </collision>
+      <xacro:cylinder_inertial mass="${mass}" radius="${radius}" length="${length}" cz="${length/2.0}"/>
+    </link>
+  </xacro:macro>
+
+  <!-- A short hub centred on its own origin (for the wrist joints whose axes
+       coincide at the wrist centre). -->
+  <xacro:macro name="hub_link" params="name radius length mass material">
+    <link name="${name}">
+      <visual>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry><cylinder radius="${radius}" length="${length}"/></geometry>
+        <material name="${material}"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="0 0 0"/>
+        <geometry><cylinder radius="${radius}" length="${length}"/></geometry>
+      </collision>
+      <xacro:cylinder_inertial mass="${mass}" radius="${radius}" length="${length}"/>
+    </link>
+  </xacro:macro>
+
+  <!-- One revolute joint. Limits/velocity given in degrees, converted to rad. -->
+  <xacro:macro name="rev_joint"
+      params="name parent child ox oy oz ax ay az lo_deg hi_deg vel_deg eff">
+    <joint name="${name}" type="revolute">
+      <parent link="${parent}"/>
+      <child  link="${child}"/>
+      <origin xyz="${ox} ${oy} ${oz}" rpy="0 0 0"/>
+      <axis xyz="${ax} ${ay} ${az}"/>
+      <limit lower="${lo_deg*pi/180.0}" upper="${hi_deg*pi/180.0}"
+             effort="${eff}" velocity="${vel_deg*pi/180.0}"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- Build base_link .. link6 (flange). Gripper is attached separately by the
+       caller via build_gripper(parent=link6). -->
+  <xacro:macro name="build_arm">
+
+    <xacro:seg_link name="base_link" radius="0.060" length="${base_height}" mass="0.60" material="arm_base"/>
+
+    <xacro:rev_joint name="J1_base_yaw" parent="base_link" child="link1"
+        ox="0" oy="0" oz="${base_height}" ax="0" ay="0" az="1"
+        lo_deg="${j1_lo}" hi_deg="${j1_hi}" vel_deg="${j1_vel}" eff="${j1_eff}"/>
+    <xacro:seg_link name="link1" radius="0.050" length="${shoulder_z}" mass="0.40" material="arm_link"/>
+
+    <xacro:rev_joint name="J2_shoulder_pitch" parent="link1" child="link2"
+        ox="0" oy="0" oz="${shoulder_z}" ax="0" ay="1" az="0"
+        lo_deg="${j2_lo}" hi_deg="${j2_hi}" vel_deg="${j2_vel}" eff="${j2_eff}"/>
+    <xacro:seg_link name="link2" radius="0.040" length="${upper_arm}" mass="0.50" material="arm_link"/>
+
+    <xacro:rev_joint name="J3_elbow_pitch" parent="link2" child="link3"
+        ox="0" oy="0" oz="${upper_arm}" ax="0" ay="1" az="0"
+        lo_deg="${j3_lo}" hi_deg="${j3_hi}" vel_deg="${j3_vel}" eff="${j3_eff}"/>
+    <xacro:seg_link name="link3" radius="0.032" length="${forearm}" mass="0.35" material="arm_link"/>
+
+    <!-- J4 sits at the wrist centre (top of the forearm); J5,J6 coincide there. -->
+    <xacro:rev_joint name="J4_forearm_roll" parent="link3" child="link4"
+        ox="0" oy="0" oz="${forearm}" ax="0" ay="0" az="1"
+        lo_deg="${j4_lo}" hi_deg="${j4_hi}" vel_deg="${j4_vel}" eff="${j4_eff}"/>
+    <xacro:hub_link name="link4" radius="0.030" length="0.060" mass="0.12" material="arm_wrist"/>
+
+    <xacro:rev_joint name="J5_wrist_pitch" parent="link4" child="link5"
+        ox="0" oy="0" oz="0" ax="0" ay="1" az="0"
+        lo_deg="${j5_lo}" hi_deg="${j5_hi}" vel_deg="${j5_vel}" eff="${j5_eff}"/>
+    <xacro:hub_link name="link5" radius="0.028" length="0.050" mass="0.12" material="arm_wrist"/>
+
+    <xacro:rev_joint name="J6_wrist_roll" parent="link5" child="link6"
+        ox="0" oy="0" oz="0" ax="0" ay="0" az="1"
+        lo_deg="${j6_lo}" hi_deg="${j6_hi}" vel_deg="${j6_vel}" eff="${j6_eff}"/>
+    <xacro:seg_link name="link6" radius="0.025" length="${wrist}" mass="0.10" material="arm_wrist"/>
+
+  </xacro:macro>
+</robot>

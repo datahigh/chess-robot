@@ -1,0 +1,116 @@
+<?xml version="1.0" ?>
+<!-- Gazebo (gz-sim, Jetty) world for the chess arm.
+
+     The board + graveyard are STATIC models here so they are part of the physical
+     world. Spawn the arm separately from /robot_description, built with
+     with_world:=false so the scene is not duplicated:
+
+       ros2 launch ros_gz_sim gz_sim.launch.py gz_args:=<...>/worlds/chess.sdf
+       ros2 run ros_gz_sim create -topic /robot_description -name chess_arm
+       ros2 run ros_gz_bridge parameter_bridge /clock@rosgraph_msgs/msg/Clock[gz.msgs.Clock
+
+     (run ROS nodes with use_sim_time:=true). -->
+<sdf version="1.11">
+  <world name="chess">
+
+    <physics name="1ms" type="dart">
+      <max_step_size>0.001</max_step_size>
+      <real_time_factor>1.0</real_time_factor>
+    </physics>
+
+    <plugin filename="gz-sim-physics-system"
+            name="gz::sim::systems::Physics"/>
+    <plugin filename="gz-sim-user-commands-system"
+            name="gz::sim::systems::UserCommands"/>
+    <plugin filename="gz-sim-scene-broadcaster-system"
+            name="gz::sim::systems::SceneBroadcaster"/>
+    <!-- Pre-wired for future piece/gripper contact sensing; no contact sensors yet in Phase 0. -->
+    <plugin filename="gz-sim-contact-system"
+            name="gz::sim::systems::Contact"/>
+
+    <light type="directional" name="sun">
+      <cast_shadows>true</cast_shadows>
+      <pose>0 0 6 0 0 0</pose>
+      <diffuse>0.9 0.9 0.9 1</diffuse>
+      <specular>0.3 0.3 0.3 1</specular>
+      <direction>-0.3 0.2 -0.9</direction>
+    </light>
+
+    <scene>
+      <ambient>0.4 0.4 0.4 1</ambient>
+      <background>0.7 0.78 0.85 1</background>
+    </scene>
+
+    <!-- Table / ground plane (board surface datum z=0). -->
+    <model name="ground_plane">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
+          <geometry><plane><normal>0 0 1</normal><size>4 4</size></plane></geometry>
+        </collision>
+        <visual name="visual">
+          <geometry><plane><normal>0 0 1</normal><size>4 4</size></plane></geometry>
+          <material>
+            <ambient>0.3 0.3 0.32 1</ambient>
+            <diffuse>0.4 0.4 0.45 1</diffuse>
+          </material>
+        </visual>
+      </link>
+    </model>
+
+    <!-- Chessboard: frame + playing surface, top face at z=0. -->
+    <model name="chessboard">
+      <static>true</static>
+      <pose>0 0 0 0 0 0</pose>
+      <link name="link">
+        <visual name="frame">
+          <pose>0 0 -0.006 0 0 0</pose>
+          <geometry><box><size>0.5072 0.5072 0.012</size></box></geometry>
+          <material>
+            <ambient>0.12 0.08 0.05 1</ambient>
+            <diffuse>0.12 0.08 0.05 1</diffuse>
+          </material>
+        </visual>
+        <visual name="surface">
+          <pose>0 0 0.001 0 0 0</pose>
+          <geometry><box><size>0.4572 0.4572 0.002</size></box></geometry>
+          <material>
+            <ambient>0.80 0.72 0.55 1</ambient>
+            <diffuse>0.80 0.72 0.55 1</diffuse>
+          </material>
+        </visual>
+        <collision name="collision">
+          <pose>0 0 -0.006 0 0 0</pose>
+          <geometry><box><size>0.5072 0.5072 0.012</size></box></geometry>
+        </collision>
+      </link>
+    </model>
+
+    <!-- Capture graveyard tray on the +X side. -->
+    <model name="graveyard">
+      <static>true</static>
+      <pose>0.3025 -0.020 0 0 0 0</pose>
+      <link name="link">
+        <visual name="tray">
+          <pose>0 0 -0.005 0 0 0</pose>
+          <geometry><box><size>0.083 0.328 0.010</size></box></geometry>
+          <material>
+            <ambient>0.30 0.30 0.33 1</ambient>
+            <diffuse>0.30 0.30 0.33 1</diffuse>
+          </material>
+        </visual>
+        <collision name="collision">
+          <pose>0 0 -0.005 0 0 0</pose>
+          <geometry><box><size>0.083 0.328 0.010</size></box></geometry>
+        </collision>
+      </link>
+    </model>
+
+    <gui fullscreen="0">
+      <camera name="user_camera">
+        <pose>-0.6 -0.9 0.8 0 0.5 0.9</pose>
+      </camera>
+    </gui>
+
+  </world>
+</sdf>

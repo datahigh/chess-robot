@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- ros2_control hardware description. ONE block serves all three targets;
+       only the <plugin> line (and the gz <gazebo> plugin) changes with hw_type:
+         mock_components -> offline sim (mock_components/GenericSystem)
+         gz              -> Gazebo Jetty (gz_ros2_control/GazeboSimSystem)
+         real            -> custom moteus interface (Phase 2; package TBD)
+       The joint/interface list is identical across targets, which is what lets
+       sim and real share the description (CLAUDE.md ros2_control isolation goal).
+       gripper_right_joint is omitted here: it is a URDF <mimic> of the left jaw
+       and GenericSystem/gz mirror it automatically. -->
+
+  <!-- Position-commanded joint with position+velocity feedback. -->
+  <xacro:macro name="ctl_joint" params="name init:=0.0">
+    <joint name="${name}">
+      <command_interface name="position"/>
+      <state_interface name="position">
+        <param name="initial_value">${init}</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+  </xacro:macro>
+
+  <xacro:macro name="chess_arm_ros2_control" params="hw_type">
+    <ros2_control name="ChessArmSystem" type="system">
+      <hardware>
+        <xacro:if value="${hw_type == 'mock_components'}">
+          <plugin>mock_components/GenericSystem</plugin>
+          <param name="calculate_dynamics">true</param>
+        </xacro:if>
+        <xacro:if value="${hw_type == 'gz'}">
+          <plugin>gz_ros2_control/GazeboSimSystem</plugin>
+        </xacro:if>
+        <xacro:if value="${hw_type == 'real'}">
+          <!-- Phase 2: implemented in a future chess_arm_hardware package. -->
+          <plugin>chess_arm_hardware/MoteusSystem</plugin>
+        </xacro:if>
+      </hardware>
+
+      <xacro:ctl_joint name="J1_base_yaw"/>
+      <xacro:ctl_joint name="J2_shoulder_pitch"/>
+      <xacro:ctl_joint name="J3_elbow_pitch"/>
+      <xacro:ctl_joint name="J4_forearm_roll"/>
+      <xacro:ctl_joint name="J5_wrist_pitch"/>
+      <xacro:ctl_joint name="J6_wrist_roll"/>
+      <xacro:ctl_joint name="gripper_left_joint"/>
+    </ros2_control>
+
+    <!-- gz hosts the controller_manager via this system plugin (gz-only). -->
+    <xacro:if value="${hw_type == 'gz'}">
+      <gazebo>
+        <plugin filename="gz_ros2_control-system"
+                name="gz_ros2_control::GazeboSimROS2ControlPlugin">
+          <parameters>$(find chess_arm_description)/config/ros2_controllers.yaml</parameters>
+        </plugin>
+      </gazebo>
+    </xacro:if>
+  </xacro:macro>
+</robot>

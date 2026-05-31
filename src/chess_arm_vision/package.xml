@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>chess_arm_vision</name>
+  <version>0.0.1</version>
+  <description>
+    Phase-0 move-detection stub for the 6-DOF chess-playing arm. The engine is
+    the authoritative game state; vision only reports which board squares
+    changed each turn (never the piece type). Ships a pure-Python per-square
+    diff library (detector.py) and a thin ROS 2 node that turns ground-truth
+    simulator FENs on /sim_board_fen into a DetectChanges service. Real OpenCV
+    per-square diffing replaces the stub in Phase 3.
+  </description>
+  <maintainer email="neildesh@gmail.com">neil</maintainer>
+  <license>MIT</license>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>chess_arm_interfaces</exec_depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

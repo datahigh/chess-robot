@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Shared visual materials (RGBA 0..1). RViz uses these directly; Gazebo Jetty
+       reads <visual><material> too, though gz prefers <ambient>/<diffuse> in SDF. -->
+
+  <material name="arm_base">     <color rgba="0.20 0.22 0.25 1.0"/></material>
+  <material name="arm_link">     <color rgba="0.85 0.86 0.88 1.0"/></material>
+  <material name="arm_wrist">    <color rgba="0.95 0.55 0.10 1.0"/></material>
+  <material name="gripper_body"> <color rgba="0.15 0.16 0.18 1.0"/></material>
+  <material name="gripper_finger"><color rgba="0.95 0.20 0.20 1.0"/></material>
+
+  <material name="board_light">  <color rgba="0.93 0.86 0.70 1.0"/></material>
+  <material name="board_dark">   <color rgba="0.40 0.26 0.16 1.0"/></material>
+  <material name="board_frame">  <color rgba="0.12 0.08 0.05 1.0"/></material>
+  <material name="graveyard">    <color rgba="0.30 0.30 0.33 1.0"/></material>
+  <material name="graveyard_slot"><color rgba="0.55 0.10 0.10 1.0"/></material>
+</robot>

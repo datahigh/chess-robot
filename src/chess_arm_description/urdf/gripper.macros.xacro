@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Adaptive gripper, modelled for sim as a single-DOF parallel jaw. The real
+       end-effector is compliant TPU Fin Ray fingers on one servo; for kinematics
+       this parallel approximation is sufficient. gripper_left_joint is the one
+       actuated DOF (declared in ros2_control); gripper_right_joint mimics it so
+       the jaws stay symmetric. The 'tcp' frame is the grasp point used as the
+       MoveIt IK target (tool_offset = wrist + tool_tip below the wrist centre). -->
+
+  <xacro:macro name="build_gripper" params="parent">
+
+    <!-- Gripper body bolted to the flange (parent = link6, flange end at z=wrist). -->
+    <joint name="flange_to_gripper" type="fixed">
+      <parent link="${parent}"/>
+      <child  link="gripper_base"/>
+      <origin xyz="0 0 ${wrist}" rpy="0 0 0"/>
+    </joint>
+    <link name="gripper_base">
+      <visual>
+        <origin xyz="0 0 0.015" rpy="0 0 0"/>
+        <geometry><box size="0.050 0.050 0.030"/></geometry>
+        <material name="gripper_body"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0.015" rpy="0 0 0"/>
+        <geometry><box size="0.050 0.050 0.030"/></geometry>
+      </collision>
+      <xacro:box_inertial mass="0.10" x="0.050" y="0.050" z="0.030" cz="0.015"/>
+    </link>
+
+    <!-- Left jaw: the single actuated DOF. -->
+    <joint name="gripper_left_joint" type="prismatic">
+      <parent link="gripper_base"/>
+      <child  link="gripper_left_finger"/>
+      <origin xyz="0 ${finger_half_gap} 0" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <limit lower="${-finger_close}" upper="${finger_travel}"
+             effort="${gripper_eff}" velocity="${gripper_vel}"/>
+    </joint>
+    <link name="gripper_left_finger">
+      <visual>
+        <origin xyz="0 0 ${finger_length/2.0}" rpy="0 0 0"/>
+        <geometry><box size="0.010 0.012 ${finger_length}"/></geometry>
+        <material name="gripper_finger"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${finger_length/2.0}" rpy="0 0 0"/>
+        <geometry><box size="0.010 0.012 ${finger_length}"/></geometry>
+      </collision>
+      <xacro:box_inertial mass="0.03" x="0.010" y="0.012" z="${finger_length}" cz="${finger_length/2.0}"/>
+    </link>
+
+    <!-- Right jaw: mirrors the left (one physical servo). -->
+    <joint name="gripper_right_joint" type="prismatic">
+      <parent link="gripper_base"/>
+      <child  link="gripper_right_finger"/>
+      <origin xyz="0 ${-finger_half_gap} 0" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+      <!-- Follower range = negated leader range (multiplier -1), so the declared
+           limits are self-consistent with the mimic and pass URDF/MoveIt checks. -->
+      <limit lower="${-finger_travel}" upper="${finger_close}"
+             effort="${gripper_eff}" velocity="${gripper_vel}"/>
+      <mimic joint="gripper_left_joint" multiplier="-1.0" offset="0.0"/>
+    </joint>
+    <link name="gripper_right_finger">
+      <visual>
+        <origin xyz="0 0 ${finger_length/2.0}" rpy="0 0 0"/>
+        <geometry><box size="0.010 0.012 ${finger_length}"/></geometry>
+        <material name="gripper_finger"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 ${finger_length/2.0}" rpy="0 0 0"/>
+        <geometry><box size="0.010 0.012 ${finger_length}"/></geometry>
+      </collision>
+      <xacro:box_inertial mass="0.03" x="0.010" y="0.012" z="${finger_length}" cz="${finger_length/2.0}"/>
+    </link>
+
+    <!-- Tool centre point = grasp point (IK target frame). -->
+    <joint name="gripper_to_tcp" type="fixed">
+      <parent link="gripper_base"/>
+      <child  link="tcp"/>
+      <origin xyz="0 0 ${tool_tip}" rpy="0 0 0"/>
+    </joint>
+    <link name="tcp"/>
+
+  </xacro:macro>
+</robot>

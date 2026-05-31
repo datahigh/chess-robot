@@ -1,0 +1,27 @@
+# colcon
+build/
+install/
+log/
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# Claude Code local settings (machine-local; not shared)
+.claude/settings.local.json
+
+# scratch / verification artifacts
+.scratch/
+
+# editor / OS
+.vscode/
+*.swp
+*~
+.DS_Store
+
+# WSL/Windows download cruft
+*:Zone.Identifier

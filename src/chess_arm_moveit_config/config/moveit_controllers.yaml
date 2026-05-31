@@ -1,0 +1,54 @@
+# MoveIt controller manager configuration for chess_arm.
+#
+# Loaded by MoveItConfigsBuilder().trajectory_execution(...) (this file matches
+# the *_controllers.yaml glob it scans). It tells MoveIt which ros2_control
+# controllers exist and how to talk to each one's action server.
+#
+# Gripper wiring (verified against the installed Lyrical stack):
+#   * The ros2_control gripper_controller is
+#       parallel_gripper_action_controller/GripperActionController
+#     which advertises a control_msgs/action/ParallelGripperCommand action at
+#     "~/gripper_cmd" -> /gripper_controller/gripper_cmd.
+#   * The MoveItSimpleControllerManager on this build *does* implement a matching
+#     handle: type "ParallelGripperCommand" (see
+#     moveit_simple_controller_manager.cpp, ParallelGripperCommandControllerHandle).
+#     So we drive it natively over ParallelGripperCommand with action_ns gripper_cmd
+#     -- no need to fall back to a FollowJointTrajectory gripper.
+#   * For ParallelGripperCommand the handle commands controller_joints[0]
+#     (gripper_left_joint) and only fills the goal velocity/effort fields when
+#     max_velocity / max_effort are set > 0 here.
+trajectory_execution:
+  allowed_execution_duration_scaling: 1.2
+  allowed_goal_duration_margin: 0.5
+  allowed_start_tolerance: 0.01
+  execution_duration_monitoring: true
+
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+moveit_simple_controller_manager:
+  controller_names:
+    - arm_controller
+    - gripper_controller
+
+  arm_controller:
+    action_ns: follow_joint_trajectory
+    type: FollowJointTrajectory
+    default: true
+    joints:
+      - J1_base_yaw
+      - J2_shoulder_pitch
+      - J3_elbow_pitch
+      - J4_forearm_roll
+      - J5_wrist_pitch
+      - J6_wrist_roll
+
+  gripper_controller:
+    action_ns: gripper_cmd
+    type: ParallelGripperCommand
+    default: true
+    # Populate the ParallelGripperCommand goal velocity/effort fields
+    # (handle only sends them when > 0). Match the URDF gripper limits.
+    max_velocity: 0.1
+    max_effort: 10.0
+    joints:
+      - gripper_left_joint

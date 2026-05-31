@@ -1,0 +1,11 @@
+# Default initial positions for the chess_arm ros2_control mock_components system.
+# All six arm joints start at zero (arm pointing straight up per the URDF zero
+# pose); the gripper jaw starts closed-ish at its mid value via the URDF state
+# interface default, so it is intentionally omitted here.
+initial_positions:
+  J1_base_yaw: 0.0
+  J2_shoulder_pitch: 0.0
+  J3_elbow_pitch: 0.0
+  J4_forearm_roll: 0.0
+  J5_wrist_pitch: 0.0
+  J6_wrist_roll: 0.0

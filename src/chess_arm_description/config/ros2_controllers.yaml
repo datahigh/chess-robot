@@ -1,0 +1,38 @@
+# ros2_control controllers for the chess arm (Phase 0 sim).
+# Loaded by gz_ros2_control (via the <gazebo> plugin <parameters> tag) and by a
+# standalone controller_manager for the mock target. chess_arm_bringup may
+# override this later; kept here so the gz branch of the description is self-contained.
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    gripper_controller:
+      # parallel_gripper_action_controller replaces the removed
+      # position_controllers/GripperActionController on Lyrical; it also speaks the
+      # ParallelGripperCommand action MoveIt expects for parallel jaws (Phase 4).
+      type: parallel_gripper_action_controller/GripperActionController
+
+arm_controller:
+  ros__parameters:
+    joints:
+      - J1_base_yaw
+      - J2_shoulder_pitch
+      - J3_elbow_pitch
+      - J4_forearm_roll
+      - J5_wrist_pitch
+      - J6_wrist_roll
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+
+gripper_controller:
+  ros__parameters:
+    joint: gripper_left_joint

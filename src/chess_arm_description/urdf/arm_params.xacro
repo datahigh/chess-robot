@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- ==========================================================================
+       CANONICAL KINEMATIC + WORLD PARAMETERS  (SI: metres; angles given in deg
+       are converted to rad inline with *pi/180).
+
+       Single source of truth for the URDF. The same numbers are mirrored (in
+       mm/deg) in config/arm_params.yaml for software consumers, and the two are
+       asserted equal by scripts/reachability_check.py. KEEP THE THREE IN SYNC.
+
+       Verified by reachability_check.py: all 64 squares + 16 graveyard slots are
+       reachable top-down at both grasp (z=30mm) and lift (z=110mm) heights,
+       worst margin 70.3 mm (far corners a8/h8). Reach = upper_arm+forearm = 640 mm.
+       ========================================================================== -->
+
+  <!-- Link lengths (m) -->
+  <xacro:property name="base_height"  value="0.090"/>  <!-- ground to J1 yaw axis        -->
+  <xacro:property name="shoulder_z"   value="0.170"/>  <!-- J1 to J2 shoulder-pitch axis -->
+  <xacro:property name="upper_arm"    value="0.340"/>  <!-- J2 to J3 elbow               -->
+  <xacro:property name="forearm"      value="0.300"/>  <!-- J3 to wrist centre (J5)      -->
+  <xacro:property name="wrist"        value="0.060"/>  <!-- wrist centre to J6 flange    -->
+  <xacro:property name="tool_tip"     value="0.110"/>  <!-- flange to gripper grasp pt   -->
+
+  <!-- Arm base (J1 yaw axis) placement in the world (board centre = world origin,
+       board top surface at z=0). Base centred on board X, 330 mm behind near edge. -->
+  <xacro:property name="base_x"       value="0.0"/>
+  <xacro:property name="base_y"       value="-0.330"/>
+
+  <!-- Joint limits (deg), velocity (deg/s), effort (N*m) -->
+  <xacro:property name="j1_lo" value="-180"/> <xacro:property name="j1_hi" value="180"/>
+  <xacro:property name="j2_lo" value="-110"/> <xacro:property name="j2_hi" value="110"/>
+  <xacro:property name="j3_lo" value="-160"/> <xacro:property name="j3_hi" value="160"/>
+  <xacro:property name="j4_lo" value="-180"/> <xacro:property name="j4_hi" value="180"/>
+  <xacro:property name="j5_lo" value="-120"/> <xacro:property name="j5_hi" value="120"/>
+  <xacro:property name="j6_lo" value="-360"/> <xacro:property name="j6_hi" value="360"/>
+
+  <xacro:property name="j1_vel" value="120"/> <xacro:property name="j1_eff" value="25"/>
+  <xacro:property name="j2_vel" value="100"/> <xacro:property name="j2_eff" value="40"/>
+  <xacro:property name="j3_vel" value="120"/> <xacro:property name="j3_eff" value="25"/>
+  <xacro:property name="j4_vel" value="200"/> <xacro:property name="j4_eff" value="8"/>
+  <xacro:property name="j5_vel" value="200"/> <xacro:property name="j5_eff" value="8"/>
+  <xacro:property name="j6_vel" value="300"/> <xacro:property name="j6_eff" value="4"/>
+
+  <!-- Gripper: single-DOF parallel approximation of the Fin Ray fingers -->
+  <xacro:property name="finger_travel" value="0.020"/>   <!-- per-finger open stroke (m)   -->
+  <xacro:property name="finger_close"  value="0.006"/>   <!-- per-finger close stroke (m)  -->
+  <xacro:property name="finger_half_gap" value="0.012"/> <!-- finger offset from centre @0 -->
+  <xacro:property name="finger_length" value="0.090"/>   <!-- finger reach toward grasp pt -->
+  <xacro:property name="gripper_vel" value="0.10"/>      <!-- m/s                           -->
+  <xacro:property name="gripper_eff" value="10"/>        <!-- N                             -->
+
+  <!-- Board: standard tournament Staunton -->
+  <xacro:property name="square_size"   value="0.05715"/> <!-- 57.15 mm (2.25")              -->
+  <xacro:property name="playing_field" value="0.4572"/>  <!-- 8 * square                    -->
+  <xacro:property name="board_border"  value="0.025"/>
+  <xacro:property name="board_thick"   value="0.012"/>
+  <xacro:property name="board_outer"   value="${playing_field + 2*board_border}"/>
+
+  <!-- Graveyard tray: 16 slots (2 rows x 8 cols) on the +X side -->
+  <xacro:property name="gy_row0_x" value="0.285"/>  <!-- near row clears board edge 0.2536 -->
+  <xacro:property name="gy_row1_x" value="0.320"/>
+  <xacro:property name="gy_col0_y" value="-0.160"/> <!-- 8 cols at 40mm pitch to +0.120    -->
+  <xacro:property name="gy_pitch"  value="0.040"/>
+  <xacro:property name="gy_slot_r" value="0.018"/>
+
+  <!-- Task heights (m above board surface) -->
+  <xacro:property name="grasp_z" value="0.030"/>
+  <xacro:property name="lift_z"  value="0.110"/>
+
+  <!-- Derived: distance wrist-centre to grasp point along the tool axis -->
+  <xacro:property name="tool_offset" value="${wrist + tool_tip}"/>  <!-- 0.170 m -->
+</robot>

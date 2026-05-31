@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>chess_arm_interfaces</name>
+  <version>0.0.1</version>
+  <description>
+    Canonical ROS 2 message and service definitions for the 6-DOF chess-playing
+    robot arm. Defines the contract shared across the brain (engine + move
+    resolution + piece-action planning), the vision node (changed-square
+    detection), and the orchestrator. The chess engine is the authoritative game
+    state; vision only reports changed squares; moves are resolved by matching
+    changed squares to python-chess legal moves. Phase 0 of the chess-robot build
+    (ROS 2 Lyrical Luth).
+  </description>
+  <maintainer email="neildesh@gmail.com">neil</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+
+  <!-- geometry_msgs/Point is used by PieceAction (from_xyz / to_xyz). -->
+  <depend>geometry_msgs</depend>
+
+  <exec_depend>rosidl_default_runtime</exec_depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <test_depend>ament_lint_auto</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

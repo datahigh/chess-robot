@@ -1,0 +1,9 @@
+# Vision entry point: report which board squares changed occupancy since the
+# previous turn. Phase 0 is a sim/stub source; later a fixed overhead OpenCV
+# pipeline. Vision never classifies piece type, only changed-square detection.
+
+# (empty request)
+---
+bool ok                    # true if a valid board read was obtained
+string[] changed_squares   # squares whose occupancy changed, e.g. ["e7", "e5"]
+string fen                 # best-effort FEN of the observed board (may be empty)

@@ -1,0 +1,49 @@
+# ============================================================================
+# Canonical chess-arm parameters in mm / degrees (human-readable mirror of
+# urdf/arm_params.xacro, which holds the same values in SI for the URDF).
+# Consumed by scripts/reachability_check.py (which also asserts this file and
+# the xacro agree) and, later, by the brain / MoveIt named states.
+# KEEP IN SYNC WITH urdf/arm_params.xacro.
+#
+# Verified: all 64 squares + 16 graveyard slots reachable top-down at grasp
+# (z=30mm) and lift (z=110mm), worst margin 70.3mm. Reach = upper_arm+forearm.
+# ============================================================================
+units: {length: mm, angle: deg}
+
+links_mm:
+  base_height: 90.0     # ground -> J1 yaw axis
+  shoulder_z:  170.0    # J1 -> J2 shoulder-pitch axis
+  upper_arm:   340.0    # J2 -> J3 elbow
+  forearm:     300.0    # J3 -> wrist centre (J5)
+  wrist:       60.0     # wrist centre -> J6 flange
+  tool_tip:    110.0    # flange -> gripper grasp point
+
+base_world_mm: {x: 0.0, y: -330.0}   # J1 yaw axis in world (board centre = origin)
+
+joints:
+  J1_base_yaw:       {axis: z, lower_deg: -180, upper_deg: 180, velocity_dps: 120, effort_nm: 25}
+  J2_shoulder_pitch: {axis: y, lower_deg: -110, upper_deg: 110, velocity_dps: 100, effort_nm: 40}
+  J3_elbow_pitch:    {axis: y, lower_deg: -160, upper_deg: 160, velocity_dps: 120, effort_nm: 25}
+  J4_forearm_roll:   {axis: z, lower_deg: -180, upper_deg: 180, velocity_dps: 200, effort_nm: 8}
+  J5_wrist_pitch:    {axis: y, lower_deg: -120, upper_deg: 120, velocity_dps: 200, effort_nm: 8}
+  J6_wrist_roll:     {axis: z, lower_deg: -360, upper_deg: 360, velocity_dps: 300, effort_nm: 4}
+
+board:
+  square_size_mm:   57.15
+  playing_field_mm: 457.2
+  border_mm:        25.0
+  thickness_mm:     12.0
+  center_world_mm:  [0.0, 0.0, 0.0]
+  surface_z_mm:     0.0
+  rank_axis: "+Y"    # ranks 1->8 run along +Y; files a->h run along +X
+
+graveyard:
+  rows_x_mm:      [285.0, 320.0]   # near row clears board outer edge (253.6mm) by 31.4mm
+  col0_y_mm:      -160.0           # 8 columns at 40mm pitch -> +120mm
+  pitch_mm:       40.0
+  slot_radius_mm: 18.0
+  slots:          16
+
+task_heights_mm:
+  grasp_z: 30.0    # grasp point above board surface
+  lift_z:  110.0   # lift/approach height above board surface
