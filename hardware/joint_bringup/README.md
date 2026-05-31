@@ -11,7 +11,7 @@ joint** (the J5 wrist-pitch / J6 wrist-roll class) — small gimbal BLDC, low to
 |---|---|---|
 | Joint | Wrist-class (J5/J6) bench joint | Least-risky first: low torque, low ratio, little stored energy |
 | Motor | Gimbal BLDC (GB2208 / GBM2804 class) | High pole count, low Kv; torque is tiny (pieces weigh grams) and the 9:1 multiplies it |
-| Controller | **moteus-c1** over **fdcanusb** (CAN-FD) | Per the locked architecture |
+| Controller | **moteus-c1** over **mjcanfd-usb-1x** (CAN-FD) | fdcanusb successor (discontinued); same JST-PH3 pinout |
 | Reduction | 3D-printed **~9:1** single-stage cycloidal | `rotor_to_output_ratio = 1/9 = 0.111111` (output-per-rotor) |
 | Commutation source | **onboard** encoder (aux1), `sources.0`, rotor-referenced | FOC must commutate off the rotor, never the geared output |
 | Output position source | **AS5047P** (14-bit SPI) on **aux2**, `sources.1`, output-referenced | Absolute joint angle after the gearbox → homing-free across power cycles |
@@ -40,7 +40,8 @@ hardware/joint_bringup/
 1. **Tooling is installed** — `moteus` 1.0.0 (lib + `moteus_tool`) is on this box. (Re-create with
    `pip install --user --break-system-packages -r bringup/requirements.txt`.)
 2. **Order the BOM** — see [`BOM_single_joint.md`](BOM_single_joint.md). Import the long-lead items
-   first (moteus-c1, fdcanusb, JST-PH3 terminator + GH-7/XT30/PH-3 mating-connector kit); the
+   first (moteus-c1, mjcanfd-usb-1x, JST-PH3 terminator(s), and the GH-7 AUX2 connector via
+   DigiKey/Mouser); the
    India-local parts (gimbal motor, AS5047P + diametric magnet, 24 V PSU, NC E-stop, PETG) in
    parallel.
 3. **Print the ~9:1 cycloidal reducer** — reference CAD (Faze4 / OpenCyRe / Skyentific) per the BOM.
@@ -96,8 +97,15 @@ stats so repeatability/backlash trends are visible across tuning iterations.
 
 ## Caveats / hardware-blocked TODOs
 
-- **WSL2:** the fdcanusb does **not** appear until `usbipd attach --busid <id> --wsl` is run from
-  Windows; then it enumerates as `/dev/fdcanusb` / `/dev/ttyACM*`. On the deployment **Raspberry
+- **CAN adapter — `mjcanfd-usb-1x` (fdcanusb successor):** the fdcanusb is discontinued; we use the
+  mjcanfd-usb-1x (same JST-PH3 moteus pinout, USB-C). The moteus python transport is still
+  `moteus.Fdcanusb` — that's the fdcanusb *protocol*, which the mjcanfd-usb-1x speaks in its USB-CDC
+  (virtual-serial) mode, so the bring-up scripts run **unchanged**; socketcan
+  (`moteus.PythonCan` / `moteus_tool --can-iface`) is the alternative. The adapter enumerates as
+  `/dev/ttyACM*` (not `/dev/fdcanusb`). VERIFY whether it integrates host-end CAN termination (the
+  fdcanusb did); if not, add a 2nd JST-PH3 terminator.
+- **WSL2:** the adapter does **not** appear until `usbipd attach --busid <id> --wsl` is run from
+  Windows; then it enumerates as `/dev/ttyACM*`. On the deployment **Raspberry
   Pi 5** it enumerates natively — no usbipd. All scripts import/parse with **no** device present and
   fail fast (exit 2) with a clear message on a live run when none is attached.
 - **Cannot be finalized until parts arrive (marked TODO in the files):**

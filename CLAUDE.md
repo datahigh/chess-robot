@@ -37,7 +37,7 @@ decides the reply, and the arm picks and places the piece (and clears captures t
 | Manipulator | Articulated **6-DOF arm**, built from scratch |
 | Joint actuation | **BLDC motors + 3D-printed cycloidal reducers** |
 | Motor control | **moteus-c1** FOC drivers (one per joint) on a **CAN-FD** bus |
-| Pi ↔ CAN bridge | **fdcanusb** (USB↔CAN-FD); pi3hat is an alternative |
+| Pi ↔ CAN bridge | **mjcanfd-usb-1x** (USB↔CAN-FD; successor to the now-discontinued fdcanusb — same JST-PH3 moteus pinout, USB-C, socketcan + fdcanusb-compatible virtual-serial); pi3hat is an alternative |
 | Joint feedback | moteus onboard encoder (motor side) **+ output-side absolute magnetic encoder** (AS5047/MT6701) per joint → absolute joint angle, no homing |
 | Robotics software | **ROS2 (Lyrical Luth — the Ubuntu 26.04 Tier-1 LTS, supported to 2031) + MoveIt2** for IK/planning; **custom `ros2_control` hardware_interface (C++)** bridging to moteus over CAN; RViz + **Gazebo Jetty** (`gz-sim`) for sim |
 | Move detection | **Overhead fixed camera + classic OpenCV.** Engine holds authoritative game state; vision only detects *which squares changed* each turn |
@@ -173,8 +173,15 @@ off the table or self-collide), and a hardware E-stop assumed on the motor bus.
   `--calibrate` then restored — reverse direction via `sources.1.sign`; `--cal-voltage` is deprecated
   → use `--cal-motor-power`; `--calibrate` clobbers `sources.1.pll_filter_hz` so the cfg MUST be
   applied AFTER calibration; added a real `--servopos-limit-deg` abort guard to the acceptance test).
-  GOTCHA: on WSL2 the fdcanusb needs `usbipd attach --busid <id> --wsl` before `/dev/fdcanusb`
-  appears; native on the Pi 5. HARDWARE-BLOCKED TODOs (marked in the files): motor SKU→`--cal-motor-poles`,
+  CAN ADAPTER DECISION (2026-05-31): the originally-specced **fdcanusb is discontinued** (mjbots
+  marks it deprecated + out of stock); adopted the **mjcanfd-usb-1x** ($39) successor — same JST-PH3
+  moteus pinout, USB-C. The moteus python transport is still `moteus.Fdcanusb` (that is the fdcanusb
+  *protocol*, which the mjcanfd-usb-1x speaks in USB-CDC virtual-serial mode), so the bring-up
+  scripts are UNCHANGED; socketcan (`moteus.PythonCan` / `moteus_tool --can-iface`) is the alt.
+  GOTCHA: on WSL2 the adapter needs `usbipd attach --busid <id> --wsl` before its serial device
+  (typically `/dev/ttyACM*`) appears; native on the Pi 5. VERIFY whether the mjcanfd-usb-1x
+  integrates host-end CAN termination (the fdcanusb did) — budget 2× JST-PH3 terminators if not.
+  HARDWARE-BLOCKED TODOs (marked in the files): motor SKU→`--cal-motor-poles`,
   as-built ratio→`rotor_to_output_ratio`, AUX2 A/B/C/D→SCK/MISO/MOSI/CS + CAN PH-3 silk order (METER
   vs the c1 rendered-pinout SVG before crimping), `output.source` index (from live `--dump-config`),
   `output.offset` (via `--zero-offset`), real `servopos` sweep, and the hand-tuned position gains.
@@ -244,7 +251,7 @@ off the table or self-collide), and a hardware E-stop assumed on the motor bus.
 ## 9. Bill of materials (condensed — for parallel sourcing; see build plan for detail)
 
 - Raspberry Pi 5 8GB + active cooler + PSU + storage (local)
-- 6× moteus-c1 FOC drivers + 1× fdcanusb adapter (import, mjbots)
+- 6× moteus-c1 FOC drivers + 1× mjcanfd-usb-1x USB-CAN-FD adapter (import, mjbots; fdcanusb successor)
 - 6× gimbal BLDC motors; 6× output magnetic encoders (AS5047/MT6701) + magnets
 - 24 V ~10 A PSU; overhead camera (Pi Cam 3 or USB webcam)
 - Bearings, fasteners, extrusion/frame; gripper servo + PCA9685; CAN wiring (JST-PH3), E-stop

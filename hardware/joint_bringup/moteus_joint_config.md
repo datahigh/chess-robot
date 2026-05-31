@@ -159,7 +159,7 @@ The **position loop** (`servo.pid_position.*`) IS in the cfg but is **hand-tuned
 - The AS5047P needs a **diametrically-magnetized magnet centered on the joint
   OUTPUT shaft**, within the AS5047P air-gap spec.
 - The onboard encoder stays on **aux1** as the rotor-side commutation source.
-- **CAN-FD:** moteus-c1 JST-PH3 connectors daisy-chain from the fdcanusb;
+- **CAN-FD:** moteus-c1 JST-PH3 connectors daisy-chain from the mjcanfd-usb-1x (fdcanusb successor);
   terminate the bus ends; this joint's `id.id = 1`.
 
 ---

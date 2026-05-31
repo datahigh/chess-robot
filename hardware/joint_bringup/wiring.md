@@ -1,8 +1,9 @@
 # Wiring — Phase-1 Single Wrist-Class Joint
 
 Wiring guide for ONE bench joint: 24 V PSU → E-stop → **moteus-c1**; c1 3-phase → **gimbal BLDC**;
-c1 **AUX2 (JST GH-7, SPI)** → **AS5047P** output-side encoder; c1 **CAN1 (JST PH-3)** → **fdcanusb**
-→ host USB. All pin claims trace to the wiring research findings (mjbots c1 KiCad schematic
+c1 **AUX2 (JST GH-7, SPI)** → **AS5047P** output-side encoder; c1 **CAN1 (JST PH-3)** → **mjcanfd-usb-1x**
+→ host USB-C (the mjcanfd-usb-1x is the fdcanusb successor; same JST-PH3 moteus pinout). All pin
+claims trace to the wiring research findings (mjbots c1 KiCad schematic
 `hw/c1/aux2.kicad_sch`, rendered pinout SVG, `docs/reference/pinouts.md`, mjbots config reference,
 AS5047P datasheet). Items the research flagged as derived (not published one-line) are marked
 **VERIFY**.
@@ -28,15 +29,16 @@ AS5047P datasheet). Items the research flagged as derived (not published one-lin
    AS5047P breakout (3.3 V) <==== AUX2 (JST GH-7) =====|  AUX2  (SPI: SCK/MISO/MOSI/CS |
    (14-bit SPI, output shaft)     7-wire SPI + 3V3+GND |        + 3V3 50mA + 5V 100mA) |
         ^                                              |                               |
-        | diametric magnet on                          |  CAN1 (JST PH-3) ===> fdcanusb ===USB===> host
+        | diametric magnet on                          |  CAN1 (JST PH-3) ==> mjcanfd-usb-1x ==USB-C==> host
         | JOINT OUTPUT shaft                           |  CAN2 (JST PH-3) ==> 120 Ohm terminator
         | (after 9:1 cycloidal)                        +-------------------------------+
         |
    [ 9:1 cycloidal reducer ] <--- motor shaft
 
-   CAN-FD bus termination (single-node bench):
-     fdcanusb SW terminator (ON by default) = 120 Ohm at HOST end
+   CAN-FD bus termination (single-node bench): 120 Ohm at EACH end.
      JST-PH3 120 Ohm terminator in c1 CAN2 jack = 120 Ohm at FAR end
+     HOST end: VERIFY whether the mjcanfd-usb-1x integrates termination (the fdcanusb did);
+               if not, add a 2nd JST-PH3 120 Ohm terminator at the adapter end
 ```
 
 ---
@@ -100,15 +102,17 @@ conf set motor_position.rotor_to_output_ratio 0.1111111   # 1/9 for the ~9:1 red
 
 moteus-c1 has **two parallel CAN-FD PH-3 jacks** (CAN1/CAN2) and **NO onboard termination**.
 
-| c1 CAN PH-3 pin (per c1 schematic order) | → fdcanusb | Notes |
-|------------------------------------------|------------|-------|
+| c1 CAN PH-3 pin (per c1 schematic order) | → mjcanfd-usb-1x | Notes |
+|------------------------------------------|-----------------|-------|
 | CAN_H | CANH | twisted pair w/ CAN_L; do NOT cross |
 | GND | GND | |
 | CAN_L | CANL | |
 
-- **CAN1 jack →** fdcanusb (CANH↔CANH, CANL↔CANL, GND↔GND).
+- **CAN1 jack →** mjcanfd-usb-1x (CANH↔CANH, CANL↔CANL, GND↔GND).
 - **CAN2 jack →** 120 Ω JST-PH3 terminator (far-bus-end termination).
-- **fdcanusb SW terminator** stays at its **default ON** = 120 Ω at the host end.
+- **Host end:** **VERIFY** whether the mjcanfd-usb-1x integrates 120 Ω termination (the fdcanusb's
+  SW terminator was ON by default). If it does not, plug a 2nd JST-PH3 120 Ω terminator at the
+  adapter end.
 - Result: the required **120 Ω at both ends**. With only one termination, 5 Mbps CAN-FD may work for
   <0.5 m but is not guaranteed.
 
@@ -141,18 +145,18 @@ silk to silk, never cross CANH/CANL.
    AS5047P PCB mounted at the target air gap.
 2. **Crimp + meter the AUX2 harness** (GH-7 ↔ AS5047P) per the pin table. **Confirm NO 3V3↔GND
    short** and full continuity BEFORE plugging into the c1.
-3. **Crimp the CAN harness** (c1 CAN1 ↔ fdcanusb, twisted pair, not crossed). Plug the **120 Ω
-   terminator into CAN2.** Leave fdcanusb SW terminator default ON.
+3. **Crimp the CAN harness** (c1 CAN1 ↔ mjcanfd-usb-1x, twisted pair, not crossed). Plug the **120 Ω
+   terminator into CAN2.** VERIFY host-end termination on the mjcanfd-usb-1x (add a 2nd terminator if absent).
 4. **Crimp the 3-phase motor leads** to MOTOR.A/B/C (order arbitrary — `--calibrate` auto-detects).
 5. **Wire the power rail with the E-stop (NC) in series on V+** upstream of the c1 XT30. Crimp the
    XT30. **Do NOT connect the XT30 to the board yet.**
 6. **Connect all data/signal with power OFF:** AUX2 into the c1 AUX2 jack, CAN into CAN1, terminator
-   into CAN2, fdcanusb USB into host. *(WSL2: `usbipd attach --busid <id> --wsl` so `/dev/fdcanusb`
-   appears; native on the Pi 5.)*
+   into CAN2, mjcanfd-usb-1x USB-C into host. *(WSL2: `usbipd attach --busid <id> --wsl` so the
+   adapter's `/dev/ttyACM*` appears; native on the Pi 5.)*
 7. **POWER LAST.** E-stop reachable. **Triple-check XT30 polarity** (not reverse-polarity protected,
    not anti-spark — reverse or hot-plug destroys the board). PSU OFF, set **current limit 1-2 A**,
    connect the XT30 (never hot-plug), then switch the PSU ON.
-8. **Comms, no motion:** `python3 -m moteus.moteus_tool -i` (autodiscovers the c1 over fdcanusb).
+8. **Comms, no motion:** `python3 -m moteus.moteus_tool -i` (autodiscovers the c1 over the mjcanfd-usb-1x).
 9. **Write the AUX2/SPI + motor_position config** (above) via `moteus_tool -c`; `conf write` to flash.
 10. **Sanity-check the encoder BEFORE commutating:** hand-rotate the OUTPUT shaft, read the AUX2 SPI
     position; confirm a clean 0→1 rev sweep, no dropouts. (Adjust gap/centering or lower

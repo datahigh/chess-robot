@@ -30,17 +30,19 @@ hardware is wired/mounted.
 
 ---
 
-## Step 0 — (WSL2 only) attach the fdcanusb
+## Step 0 — (WSL2 only) attach the mjcanfd-usb-1x
 
-On WSL2 the fdcanusb is not visible until it is forwarded from Windows:
+On WSL2 the mjcanfd-usb-1x (fdcanusb successor) is not visible until it is forwarded from Windows:
 
 ```powershell
 # Windows host (PowerShell, admin):
-usbipd list                      # find the fdcanusb busid
+usbipd list                      # find the mjcanfd-usb-1x busid
 usbipd attach --wsl --busid <id> # forward it into WSL2
 ```
 
-Then in WSL2 confirm `/dev/fdcanusb` or `/dev/ttyACM*` exists. On the eventual
+Then in WSL2 confirm `/dev/ttyACM*` exists. (The moteus transport is still `moteus.Fdcanusb` — the
+fdcanusb *protocol* — which the mjcanfd-usb-1x speaks in virtual-serial mode, so the scripts and
+`moteus_tool` work unchanged; socketcan via `--can-iface` is the alt.) On the eventual
 **Raspberry Pi 5** the adapter is native — no attach. With **no device attached**
 the scripts still import/parse cleanly (moteus 1.0.0 installed); only live
 `--target` calls fail to find a transport.
