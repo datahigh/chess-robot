@@ -110,15 +110,16 @@ for just these (still domestic, fast). All sizes are bore × OD × width (mm).
 
 | BOM | Item | Spec | ~₹ | Qty | Notes |
 |---|---|---|---:|---:|---|
-| #17 | **eSUN PETG 1.75 mm 1 kg** | structure + cycloidal parts (PETG to start) | ~1,344 | 1 | Cross-check snippet; Robu 403 |
+| #17a | **Bambu PETG HF 1 kg** | workhorse: cycloidal disc/ring/cam/carrier + mounts + housing. **2 spools** — you iterate (print→measure backlash→reprint). Mid-tone/matte for visible gear detail. RFID auto-detect in AMS | ~2,000 | 2 | Genuine Bambu — IDEAL3D / 3idea / Robu (bundle w/ the Cart-4 printer order) |
+| #17b | **Bambu PLA Basic 1 kg** | printer calibration + fixtures/jigs + test-joint holder — prove out cheap before committing PETG to gears | ~1,750 | 1 | Genuine Bambu; RFID auto-detect in AMS |
 | #18 | **Cycloidal reducer print** | self-print from edited Faze4 CAD | ₹0 | — | See CAD-edit note below |
 
-**Cart 3 subtotal (core): ≈ ₹8,000–14,000** (dominated by the bench PSU; ±the PSU model you pick).
-Without a bench PSU (if one is acquired elsewhere): ≈ ₹5,000–6,000.
+**Cart 3 subtotal (core): ≈ ₹12,500–18,500** (dominated by the bench PSU; ±the PSU model you pick;
+incl. ~₹5,750 Bambu filament). Without a bench PSU (if one is acquired elsewhere): ≈ ₹9,500–10,500.
 
 ---
 
-## Cart 4 — Bambu Lab P2S (domestic, capital tool)
+## Cart 4 — Bambu Lab P2S Combo (domestic, capital tool)
 
 Required to fabricate the cycloidal reducer + motor/encoder mounts + joint housing (BOM #17/#18 are
 self-printed). One-time tool, used across **all** phases — not a per-joint consumable, hence its own
@@ -126,11 +127,16 @@ line outside the joint subtotal.
 
 | Item | Spec | ~₹ | Qty | Notes |
 |---|---|---:|---:|---|
-| **Bambu Lab P2S** (standalone) | enclosed CoreXY, 256³ build, 300 °C hotend, hardened nozzle, ~50 °C chamber | ~72,000 | 1 | 3Ding / 3idea / Bambu Lab India. **Standalone, not Combo** — the AMS doesn't dry nylon and isn't needed here. Enclosed frame → better PETG dimensional accuracy for the gears (the reason to pick P2S over the A1) |
+| **Bambu Lab P2S Combo** (w/ AMS 2 Pro) | enclosed CoreXY, 256³ build, 300 °C hotend, hardened nozzle, ~50 °C chamber, 4-filament AMS | ~1,02,999 | 1 | **IDEAL3D** (ideal3d.in) — **authorized** Bambu dealer, in stock, Chennai (local service). Get DOA/return window in writing + warranty registered to the serial. Avoid 3Ding (not on Bambu's authorized list → warranty risk) |
 
+> **AMS routing for this project:** print PETG structure via the AMS or external spool (either is
+> fine); feed **TPU (Fin-Ray fingers) and any PA-CF/PA6-GF gears from the EXTERNAL spool, bypassing
+> the AMS** — flexibles jam the AMS path and abrasives wear it. The AMS is for PLA/PETG.
+>
 > Deferred (do NOT buy for Phase 1): high-temp filament dryer + PA-CF/PA6-GF filament — only if you
-> later upgrade the gears past PETG. PETG (in Cart 3) is all Phase 1 needs. TPU (Fin-Ray fingers) is
-> a Phase-4 item, not Phase 1.
+> later upgrade the gears past PETG. The AMS 2 Pro dries to ~65 °C (good for PETG/PLA, **not enough
+> for nylon** → still need the dedicated 70–90 °C dryer). PETG (in Cart 3) is all Phase 1 needs.
+> TPU (Fin-Ray fingers) is a Phase-4 item, not Phase 1.
 
 ---
 
@@ -188,11 +194,11 @@ to **9:1 (9 lobes / 10 pins)**.
 |---|---|---:|
 | 1 | mjbots (moteus stack) | ≈ ₹17,000 |
 | 2 | DigiKey (encoder front-end + crimp tool) | ≈ ₹7,000–8,500 |
-| 3 | Robu.in (motor, PSU, mechanicals, filament, passives) | ≈ ₹8,000–14,000 |
-| | **JOINT PARTS — 2 imports + 1 domestic** | **≈ ₹32,000–39,500 (~$340–415)** |
-| 4 | Bambu Lab P2S (one-time tool, all phases) | ≈ ₹72,000 |
+| 3 | Robu.in (motor, PSU, mechanicals, Bambu filament, passives) | ≈ ₹12,500–18,500 |
+| | **JOINT PARTS — 2 imports + 1 domestic** | **≈ ₹36,500–44,000 (~$385–465)** |
+| 4 | Bambu Lab P2S Combo, IDEAL3D (one-time tool, all phases) | ≈ ₹1,02,999 |
 | 5 | Amazon.in/Robu (one-time bench tools) | ≈ ₹9,500–17,000 |
-| | **TOTAL incl. printer + tools** | **≈ ₹113,500–128,500 (~$1,195–1,350)** |
+| | **TOTAL incl. printer + tools** | **≈ ₹1,49,000–1,64,000 (~$1,570–1,725)** |
 | | *memo: if a 24 V supply is acquired free/elsewhere* | *−₹9,900* |
 
 **Cost drivers:** the P2S printer (one-time, ₹72k), the bench PSU, moteus-c1 + adapter
