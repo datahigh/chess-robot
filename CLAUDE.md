@@ -185,6 +185,34 @@ off the table or self-collide), and a hardware E-stop assumed on the motor bus.
   as-built ratio→`rotor_to_output_ratio`, AUX2 A/B/C/D→SCK/MISO/MOSI/CS + CAN PH-3 silk order (METER
   vs the c1 rendered-pinout SVG before crimping), `output.source` index (from live `--dump-config`),
   `output.offset` (via `--zero-offset`), real `servopos` sweep, and the hand-tuned position gains.
+- **PHASE-1 SOURCING FINALIZED (2026-06-06) — full orderable cart in `hardware/joint_bringup/ORDER_CART.md`.**
+  Key locks (also synced into `BOM_single_joint.md`):
+  - **Motor LOCKED → 2804 100 KV gimbal (GBM2804H-100T), 12N14P, hollow-shaft (Ø7 OD / Ø5 ID).** Sets
+    `--cal-motor-poles 14` (resolves the motor-SKU TODO). Hollow shaft ⇒ the cycloidal cam **bolts to
+    the rotor face**, not a shaft (Ø5 bore free for a coaxial encoder pass-through). Fallback: T-Motor
+    GB2208 (Robokits RKI-3511, 6 mm bore, Kv 128). Verify pole count + bore on receipt.
+  - **Cycloidal CAD LOCKED → adopt Faze4 single-stage wrist cyclo, re-cut to 9:1 = 9 disc lobes / 10
+    ring pins** (single-eccentric law: pins = lobes+1, ratio = lobes), confirming `rotor_to_output_ratio
+    = 1/9 = 0.111111` (resolves the ratio TODO). Bearings resolved (Faze4 "Tier-A"): **688-2RS** (8×16×5)
+    ×2 cam + **MR126-2RS** (6×12×4) ×2 support + optional **MR63-2RS** (3×6×2.5) ×10 rollers; **3 mm
+    DIN 6325 hardened dowels**; M3 SHCS + heat-set inserts. **CAD edits still needed:** regen disc to
+    9/10, gimbal-rotor-face eccentric cam, re-cut housing motor face, add a 6 mm diametric AS5047P
+    magnet pocket (ref OpenCyRe hackaday.io/project/168498).
+  - **Output magnet → DOMESTIC** (Patel `D-6-3-N52-D`, 6×3 mm **diametric** — not axial), moved off
+    mjbots (no reason to import a commodity magnet).
+  - **Both IMPORT carts bought FULL-PROJECT (×6) in one parcel each** (freight/duty is per-parcel):
+    mjbots = 6× moteus-c1 + adapter + 2 terminators + **`power_dist r4.5b`** ($149, 1×XT90→6×XT30,
+    soft-start for the multi-driver bus); DigiKey = 6× AS5047P + 6× GH-7 sets + 1 crimp tool. Domestic
+    Cart 3 (motor/magnet/mechanicals/PSU/passives) stays Phase-1, scales ×6 later (no freight penalty).
+  - **Printer → Bambu P2S Combo (AMS 2 Pro) from IDEAL3D** (authorized Bambu dealer — buy authorized
+    so warranty registers to the serial; avoid non-authorized sellers for Bambu). Filament: Bambu
+    **PETG HF** (gears/structure) + **PLA Basic** (calibration/jigs). AMS routing: feed **TPU + PA-CF/
+    PA6-GF from the external spool**, not the AMS; the AMS dries only ~65 °C (nylon still needs the
+    deferred 70–90 °C dryer). Plus a Phase-1 **bench-tool kit** (soldering kit + DMM + calipers etc.).
+  - **pi3hat REJECTED** — physically incompatible with the locked Pi 5 (Pi 5 moved GPIO/SPI behind the
+    new RP1 I/O controller; pi3hat's direct-register driver targets the Pi 4 BCM2711). The USB
+    `mjcanfd-usb-1x` is host-agnostic (works on Pi 5 + WSL2) and a single CAN-FD bus carries all 6 nodes.
+  - Order-now total ≈ **₹2.20–2.38 L** (both imports full-arm + Phase-1 domestic + printer + tools).
 - The colcon workspace lives **in this repo** (`<repo>/src/...`, already on the Linux fs — not
   `/mnt/c/...`, whose 9p bridge is much slower for colcon builds).
 - Languages: **Python** (vision, chess, orchestration), **C++** (`ros2_control` hardware_interface),
@@ -251,12 +279,16 @@ off the table or self-collide), and a hardware E-stop assumed on the motor bus.
 ## 9. Bill of materials (condensed — for parallel sourcing; see build plan for detail)
 
 - Raspberry Pi 5 8GB + active cooler + PSU + storage (local)
-- 6× moteus-c1 FOC drivers + 1× mjcanfd-usb-1x USB-CAN-FD adapter (import, mjbots; fdcanusb successor)
-- 6× gimbal BLDC motors; 6× output magnetic encoders (AS5047/MT6701) + magnets
+- 6× moteus-c1 FOC drivers + 1× mjcanfd-usb-1x USB-CAN-FD adapter + mjbots `power_dist r4.5b`
+  (1×XT90→6×XT30, soft-start) (import, mjbots; fdcanusb successor). **pi3hat rejected — Pi-5-incompatible (RP1).**
+- 6× gimbal BLDC motors (**2804 100 KV / GBM2804H-100T, 14P, hollow-shaft**); 6× **AS5047P** output
+  encoders (DigiKey ams board) + 6× diametric magnets (Patel `D-6-3-N52-D`)
 - 24 V ~10 A PSU; overhead camera (Pi Cam 3 or USB webcam)
-- Bearings, fasteners, extrusion/frame; gripper servo + PCA9685; CAN wiring (JST-PH3), E-stop
+- Bearings (688-2RS / MR126-2RS / MR63-2RS), 3 mm DIN 6325 dowels, fasteners, extrusion/frame;
+  gripper servo + PCA9685; CAN wiring (JST-PH3), E-stop
 - Filament: PETG (structure + gears) + TPU (fingers); optional PA-CF/PA6-GF for gears
-- 3D printer: Bambu Lab P2S (or A1 budget); + high-temp dryer **only if** printing nylon/CF gears
+- 3D printer: Bambu Lab **P2S Combo** (AMS 2 Pro) from IDEAL3D (authorized); + high-temp dryer
+  **only if** printing nylon/CF gears (the AMS dries only ~65 °C)
 
 ---
 
