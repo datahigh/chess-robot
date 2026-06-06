@@ -97,6 +97,32 @@ free-freight >$500; budget DDP at checkout to avoid a customs hold.
 
 ---
 
+## Importing into India — customs / DDP / KYC (applies to Carts 1 & 2)
+
+Both import parcels (mjbots, DigiKey) land via courier (DHL/FedEx/UPS) and clear the same way.
+
+- **No value "cliff" — India's courier de-minimis is ₹0.** Duty applies to *any* import value (the
+  ₹75,000 personal exemption is baggage/Red-Channel only and is **lost when you use a courier**). So
+  the jump to a $612 Cart-1 parcel doesn't newly *trigger* duty — it was always dutiable; it just
+  raises the absolute amount and the odds of a formal assessment/hold.
+- **Duty ≈ 20–30 %**: BCD (HSN-specific, modest for electronic modules) + 10 % Social Welfare
+  Surcharge on the BCD + **18 % IGST** on landed value. On Cart 1 (~₹62k goods+freight) ≈
+  **₹12,000–18,000**; **already included** in the ₹73–75k landed estimate. Cart 2 similarly inside
+  its ₹22–24k.
+- **KYC is the #1 cause of holds, not the dollar amount.** The courier can't file the Bill of Entry
+  until your **PAN / Aadhaar (KYC)** is on file — the parcel sits until you provide it. Expect a KYC
+  request at this value; **reply same-day** to release it.
+- **Minimize a hold:** (1) **pay DDP (Delivered Duty Paid)** at checkout if offered — prepays duty,
+  no payment-hold; (2) ensure an **accurate commercial invoice** (real value + HSN + plain
+  description "brushless motor controllers / electronic modules" — under-declaring risks
+  seizure/penalty); (3) **have your PAN ready**.
+- **One parcel per vendor is better for customs, not worse** — one clearance event, one KYC cycle,
+  one courier disbursement/handling fee, one chance of a hold. Do **not** split Cart 1/2 to "dodge"
+  anything (with ₹0 de-minimis there's nothing to dodge, and value-splitting is a red flag). This is
+  the same logic behind buying both imports full-project (decisions #8/#9).
+
+---
+
 ## Cart 3 — Robu.in (domestic, INR) — everything else, one vendor
 
 Robu.in is the broadest single India vendor (motors, lab PSU, E-stop, wire, filament, passives,
