@@ -1,8 +1,10 @@
 # Order Cart — Phase-1 Single Wrist-Class Joint
 
 **Price snapshot: 2026-05-31** (consolidation pass 2026-06-06). FX used: **USD→INR ≈ 95.0**
-(xe.com live, cross-checked). Quantities are for **ONE bench joint** (the Phase-1 scope), not the
-full 6-joint arm.
+(xe.com live, cross-checked). Quantities are for **ONE bench joint** (the Phase-1 scope) — **except
+the two import carts, Cart 1 (mjbots) and Cart 2 (DigiKey), which are bought full-project (all 6
+joints) in one parcel each** because their freight/duty is per-parcel, not per-item (decisions #8/#9).
+Cart 3 (domestic) stays Phase-1.
 
 > **Confidence key:** ✓ = read live on the product page today · ~ = snippet / cross-vendor / approx
 > (Robu.in blocks automated fetch, so its prices are unconfirmed) · ✗ = unverified placeholder.
@@ -34,38 +36,64 @@ full 6-joint arm.
    `--cal-motor-poles 14`. Available on Robu.in (keeps Cart 3 single-vendor). Brand-name fallback:
    T-Motor GB2208 (Robokits RKI-3511, guaranteed 6 mm bore, Kv 128 — a touch high).
 
-**Net: 3 carts total — mjbots + DigiKey + Robu.in.**
+8. **mjbots cart → FULL PROJECT in one parcel.** Buy all **6× moteus-c1** + the adapter + 2
+   terminators + a **power_dist r4.5b** now, not just the Phase-1 single c1. Rationale: mjbots
+   freight/duty is per-parcel, so one import covers the whole 6-DOF arm and Phase 2 needs no second
+   mjbots import.
+9. **DigiKey cart → FULL PROJECT in one parcel.** Same per-parcel-freight rationale: buy **6× AS5047P
+   boards + 6× GH-7 connector sets** (+ the one-time crimp tool) now, so Phase 2 needs no second
+   DigiKey import. (Cart 3 domestic + Cart 5 tools stay Phase-1.)
+
+**Net: 5 carts — mjbots (full arm) + DigiKey (full arm) + Robu.in + IDEAL3D (printer) + Amazon.in (tools).**
 
 ---
 
-## Cart 1 — mjbots (import #1, USD) — the moteus stack, sole source
+## Cart 1 — mjbots (import #1, USD) — FULL-PROJECT moteus stack (all 6 joints, one parcel)
+
+> **Scope exception (decision #8):** Unlike Carts 2/3/5 (Phase-1 single-joint quantities), this cart
+> buys the **entire 6-DOF arm up front**. mjbots freight + customs duty is **per-parcel, not
+> per-item**, so ordering all six joints' controllers now avoids paying import freight/duty a second
+> time in Phase 2. Everything here is mjbots-only — nobody else makes it.
 
 | BOM | Item | Handle | Unit | Qty | Line | Conf | Notes |
 |---|---|---|---:|---:|---:|:--:|---|
-| #1 | moteus-c1 FOC controller | `moteus-c1` | $69.00 | 1 | $69.00 | ✓ | 630 in stock. **Box includes** XT30 mate + JST-PH3 housing (w/ crimps) + 1/4″ diametric **rotor** magnet |
-| #2 | mjcanfd-usb-1x USB↔CAN-FD | `mjcanfd-usb-1x` | $39.00 | 1 | $39.00 | ✓ | 634 in stock. fdcanusb successor |
-| #3 | JST-PH3 CAN-FD terminator (120 Ω) | `jst-ph3-can-fd-terminator` | $5.00 | 2 | $10.00 | ✓ | 1 at the c1 far end + 1 host end. Drop to 1 only if the mjcanfd-usb-1x integrates host-end termination (**VERIFY** on its product page) |
-| #7 | Diametric sense magnet 6×2.5 mm N35SH | `diametric-disc-magnet` | $1.50 | 5 | $7.50 | ✓ | output-shaft AS5047P magnet (the c1's bundled magnet is for the rotor, not the output) |
+| #1 | moteus-c1 FOC controller | `moteus-c1` | $69.00 | 6 | $414.00 | ✓ | **One per joint (J1–J6).** c1 is correctly sized for *every* joint (cycloidal multiplies torque; payload is grams) — no need to step up to n1. Each box includes XT30 mate + JST-PH3 housing (crimped) + a **rotor** magnet |
+| #2 | mjcanfd-usb-1x USB↔CAN-FD | `mjcanfd-usb-1x` | $39.00 | 1 | $39.00 | ✓ | One adapter serves the whole daisy-chained bus |
+| #3 | JST-PH3 CAN-FD terminator (120 Ω) | `jst-ph3-can-fd-terminator` | $5.00 | 2 | $10.00 | ✓ | Both bus ends — **2 regardless of node count**. Drop to 1 only if the mjcanfd-usb-1x integrates host-end termination (**VERIFY**) |
+| — | mjbots power_dist r4.5b | `mjbots-power-dist-r4-5b` | $149.00 | 1 | $149.00 | ✓ | **Recommended** for the 6-driver bus: soft-start/pre-charge (kills XT inrush spark), **1× XT90 in → 6× XT30 out** (one per moteus), CAN-FD power monitoring, 10–44 V / 45 A. 60 in stock. Skip only if you DIY a pre-charge resistor + master switch |
 
-**Cart 1 subtotal ≈ $125.50.** Landed (goods + intl ship ~$30–50 + ~18 % IGST) → **≈ ₹17,000**.
+> The output-shaft AS5047P magnet (#7) is **domestic (Cart 3)** — no reason to import a commodity
+> diametric magnet. The c1's *own* bundled magnet is rotor/commutation only, not the output encoder.
+> **CAN daisy-chain cables** (JST-PH3, ~5 inter-node + 1 to the adapter): crimp locally (c1 boxes
+> supply housings) or add mjbots pre-made PH3 cables (~$3–5 ea) — optional, freight is free either
+> way. **XT90 lead** (PSU→power_dist) + **XT30 leads** (power_dist→each c1): domestic/crimp.
+
+**Cart 1 subtotal ≈ $612** (full 6-joint arm). Landed (goods + intl ship ~$30–50 + ~18 % IGST)
+→ **≈ ₹73,000–75,000** (one parcel, vs ~₹16,500 for a Phase-1-only single c1).
 
 ---
 
-## Cart 2 — DigiKey (import #2, USD) — encoder front-end (the mjbots/India gap)
+## Cart 2 — DigiKey (import #2, USD) — FULL-PROJECT encoder front-end (all 6 joints, one parcel)
+
+> **Scope exception (decision #9):** like Cart 1, bought **full-project (all 6 joints)** — DigiKey
+> freight + duty is per-parcel, so all six output encoders + AUX2 connectors ship together and Phase 2
+> needs no second DigiKey import.
 
 | BOM | Item | Mfr PN | DK PN | Unit | Qty | Line | Conf | Notes |
 |---|---|---|---|---:|---:|---:|:--:|---|
-| #6 | AS5047P adapter board (solder-ready) | AS5047P ADAPTERBOARD (`AS5047P-TS_EK_AB`) | 4991-AS5047PADAPTERBOARD-ND | $19.40 | 1 | $19.40 | ✓ | 416 in stock. 3.3 V jumper; **magnet NOT incl** (use Cart 1 #7). Fixture the flat PCB over the output magnet |
-| #4 | JST GH-7 housing | GHR-07V-S | 455-1597-ND | $0.15 | 3 | $0.45 | ✓ | **verify stock at order time** (Active/backorder) or use Mouser. Cheap → buy spares |
-| #4 | JST GH crimp contact | SSHL-002T-P0.2 | 455-1606-1-ND | $0.11 | 15 | $1.65 | ✓ | Datasheet-correct GH (1.25 mm) contact, 28–30 AWG, cut-tape MOQ 1. (`MINI-SSHL-…` is a thicker-insulation sibling — not needed) |
+| #6 | AS5047P adapter board (solder-ready) | AS5047P ADAPTERBOARD (`AS5047P-TS_EK_AB`) | 4991-AS5047PADAPTERBOARD-ND | $19.40 | 6 | $116.40 | ✓ | **One per joint** output encoder. 3.3 V jumper; magnet NOT incl (Cart-3 domestic #7). Fixture the flat PCB over the output magnet. +1 spare = +$19.40 if you want margin |
+| #4 | JST GH-7 housing | GHR-07V-S | 455-1597-ND | $0.15 | 10 | $1.50 | ✓ | 6 (one per joint AUX2) + spares. Verify stock at order time or use Mouser |
+| #4 | JST GH crimp contact | SSHL-002T-P0.2 | 455-1606-1-ND | $0.11 | 60 | $6.60 | ✓ | 7/joint × 6 = 42 + generous spares (fine-pitch GH crimps have attrition). Cut-tape MOQ 1. (`MINI-SSHL-…` = thicker-insulation sibling, not needed) |
 
-**Cart 2 subtotal ≈ $21.50** + a one-time **GH-1.25 crimp tool** (IWISS/Engineer PA-09/PA-21-class
-~$25–40; the SHL contacts are too small to hand-pinch). Standalone DigiKey order is
-**freight-dominated** (~$30–45 + ~30 % duty) → landed **≈ ₹7,000–8,500**. DigiKey free-freight
->$500; budget DDP at checkout to avoid a customs hold.
+**Cart 2 subtotal ≈ $124.50** (full 6-joint arm) + a one-time **GH-1.25 crimp tool** (IWISS/Engineer
+PA-09/PA-21-class ~$25–40; the SHL contacts are too small to hand-pinch). Standalone DigiKey order is
+**freight + duty heavy** (~$35 ship + ~25–30 % duty) → landed **≈ ₹22,000–24,000**. DigiKey
+free-freight >$500; budget DDP at checkout to avoid a customs hold.
 
-> Domestic-substitute fallback (NOT taken — decision #5 chose spec-correct above) is preserved in the
-> Appendix in case DigiKey stock/freight becomes a problem.
+> **Crimping note:** 42 fine-pitch GH contacts is tedious by hand. Lower-effort alternative for the
+> Phase-2 joints: the domestic **pre-crimped JST-GH 1.25 7-pin kits** (Appendix A) — no tool, no
+> crimping — though the spec-correct DigiKey contacts (decision #5) remain the cleaner electrical bet.
+> Full domestic-substitute fallback for the front-end is preserved in Appendix A.
 
 ---
 
@@ -81,6 +109,7 @@ could verify live on another India vendor are noted with that vendor + price as 
 | BOM | Item | Spec | ~₹ | Qty | Notes / cross-check |
 |---|---|---|---:|---:|---|
 | motor | **2804 100 KV gimbal BLDC** (GBM2804H-100T class) | 12N**14P** → `--cal-motor-poles 14`; Kv ~100; hollow shaft (Ø7 OD / Ø5 ID); ≤0.8 A load | ~800–1,000 | 1 | **Hollow-shaft** → cycloidal cam bolts to the rotor face, not a shaft (see mechanicals). Robu generic clone bore = **measure on receipt**. Fallback: T-Motor GB2208 (Robokits RKI-3511, ₹2,474, 6 mm bore, Kv 128) |
+| #7 | **Diametric sense magnet 6×3 mm** | Patel **D-6-3-N52-D** | ~115 | 3 | Output-shaft AS5047P magnet. **Diameter-magnetized** (NOT axial — Patel's near-identical 6×3 *axial* disc won't work). Buy 3 for gluing attrition. patelmagnets.com (verified). Was Cart-1/mjbots; moved domestic |
 | #8 | **24 V bench PSU, 0–30 V / 0–10 A (CC/CV)** | adjustable current limit for first power-on at 1–2 A | ~3,000–10,000 | 1 | Cross-check: OWON SPE3102 ₹9,899 (Robocraze, ✓, 5 left). Any CC/CV lab supply ≥24 V/5 A works |
 | #9 | **E-stop, 22 mm latching mushroom (NC)** | switch a contactor coil, not full motor current | ~93–250 | 1 | Cross-check: Robocraze YWBL-WH ₹93 (✓). **Verify a usable NC DC contact on receipt** |
 | #10 | **XT30 M+F pair** + ~1 m 18–20 AWG silicone wire | +24 V rail through the E-stop to the c1 XT30 | ~270 | 1 | Cross-check: Robocraftstore XT30 10 cm ₹117 (✓) + bulk silicone wire ~₹150 |
@@ -114,8 +143,8 @@ for just these (still domestic, fast). All sizes are bore × OD × width (mm).
 | #17b | **Bambu PLA Basic 1 kg** | printer calibration + fixtures/jigs + test-joint holder — prove out cheap before committing PETG to gears | ~1,750 | 1 | Genuine Bambu; RFID auto-detect in AMS |
 | #18 | **Cycloidal reducer print** | self-print from edited Faze4 CAD | ₹0 | — | See CAD-edit note below |
 
-**Cart 3 subtotal (core): ≈ ₹12,500–18,500** (dominated by the bench PSU; ±the PSU model you pick;
-incl. ~₹5,750 Bambu filament). Without a bench PSU (if one is acquired elsewhere): ≈ ₹9,500–10,500.
+**Cart 3 subtotal (core): ≈ ₹12,800–18,800** (dominated by the bench PSU; ±the PSU model you pick;
+incl. ~₹5,750 Bambu filament + ~₹345 magnets). Without a bench PSU (acquired elsewhere): ≈ ₹9,800–10,800.
 
 ---
 
@@ -188,18 +217,28 @@ to **9:1 (9 lobes / 10 pins)**.
 
 ---
 
-## Rough grand total — one Phase-1 joint (3 carts)
+## Rough grand total — what you order now
 
-| Cart | Source | Est. landed |
-|---|---|---:|
-| 1 | mjbots (moteus stack) | ≈ ₹17,000 |
-| 2 | DigiKey (encoder front-end + crimp tool) | ≈ ₹7,000–8,500 |
-| 3 | Robu.in (motor, PSU, mechanicals, Bambu filament, passives) | ≈ ₹12,500–18,500 |
-| | **JOINT PARTS — 2 imports + 1 domestic** | **≈ ₹36,500–44,000 (~$385–465)** |
-| 4 | Bambu Lab P2S Combo, IDEAL3D (one-time tool, all phases) | ≈ ₹1,02,999 |
-| 5 | Amazon.in/Robu (one-time bench tools) | ≈ ₹9,500–17,000 |
-| | **TOTAL incl. printer + tools** | **≈ ₹1,49,000–1,64,000 (~$1,570–1,725)** |
-| | *memo: if a 24 V supply is acquired free/elsewhere* | *−₹9,900* |
+> **Mixed scope:** Carts 1 & 2 are **full 6-joint** (the two imports, one parcel each — fixed
+> freight). Cart 3 is **Phase-1 single-joint**. Carts 4/5 are **all-phase tools**. So this total =
+> "both imports for the whole arm + Phase-1 domestic parts + printer + tools."
+
+| Cart | Source | Scope | Est. landed |
+|---|---|---|---:|
+| 1 | mjbots (6× moteus-c1 + adapter + 2 term + power_dist) | **all 6 joints** | ≈ ₹73,000–75,000 |
+| 2 | DigiKey (6× AS5047P + 6× GH-7 sets + crimp tool) | **all 6 joints** | ≈ ₹22,000–24,000 |
+| 3 | Robu.in (motor, PSU, mechanicals, magnet, Bambu filament) | Phase-1 (1 joint) | ≈ ₹12,800–18,800 |
+| 4 | Bambu P2S Combo, IDEAL3D | all phases (tool) | ≈ ₹1,02,999 |
+| 5 | Amazon.in/Robu (bench tools) | all phases (tools) | ≈ ₹9,500–17,000 |
+| | **TOTAL (order now)** | | **≈ ₹2,20,000–2,38,000 (~$2,320–2,505)** |
+| | *memo: buying both imports full-arm (vs Phase-1-only) adds* | | *≈ ₹70,000, saves a 2nd freight/duty hit later* |
+| | *memo: if a 24 V supply is acquired free/elsewhere* | | *−₹9,900* |
+
+> **Still Phase-1 (single-joint):** Cart 3 (motor, encoder magnet, cycloidal mechanicals, PSU,
+> passives). To take the full arm to completion you'll later need **×6** of the Cart-3 mechanicals
+> (motors, magnets, bearing/dowel sets) + the structure/frame, vision, gripper, Pi 5, and chess set —
+> all domestic/no-import-freight, so no penalty to defer. Captured in the whole-project audit, not
+> ordered here.
 
 **Cost drivers:** the P2S printer (one-time, ₹72k), the bench PSU, moteus-c1 + adapter
 ($108 ≈ ₹10,300), and import freight/duty (two parcels). The cycloidal mechanicals + bench tools add
