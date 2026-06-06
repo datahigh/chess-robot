@@ -122,6 +122,55 @@ silk to silk, never cross CANH/CANL.
 
 ---
 
+## Power distribution — mjbots power_dist r4.5b (full arm; optional on the bench)
+
+For the **Phase-1 single joint**, the block diagram above is enough: PSU → E-stop (NC in V+) →
+XT30 → c1. The **`power_dist r4.5b`** (bought full-project, `ORDER_CART.md` Cart 1) is the
+**Phase-2 / full-arm power hub** — it replaces the bare PSU→XT30 link and feeds all six controllers
+from one supply with **soft-start** (no XT inrush arc). You may also use it on the bench from day one
+(one XT30 out → the c1) for the soft-start + a proper illuminated on/off rocker.
+
+```
+24 V PSU --XT90--> [ power_dist r4.5b ] --6x XT30--> 6x moteus-c1 (one each)
+                          |  PH-4 switch (SWP/SWG): illuminated rocker / E-stop loop
+                          |  2x PH-3 CAN-FD (power telemetry) -> joins the moteus bus
+```
+
+**Connectors / ratings:**
+- **XT90-M input** — from the 24 V PSU. Rated **10–44 V (≤10S)** — 24 V is fine; **45 A cont / 80 A peak**.
+- **6× XT30-F outputs** (parallel) — one to each c1 XT30 power input. **Max downstream capacitance
+  4000 µF** (six c1 are well under this). Quiescent draw ~300 µA.
+- **2× JST PH-3 CAN-FD** — the power_dist is itself a **CAN node** (reports input voltage / power /
+  energy + switch state). Daisy-chain it onto the **same moteus CAN-FD bus**; the bus still
+  terminates **120 Ω at the two physical ends** — the power_dist is just one more node, so count it
+  when deciding which two ends carry the terminators.
+- **1× JST PH-4 switch (SWP / SWG)** — the on/off control. mjbots ships an **illuminated rocker +
+  PH-4 harness** for this.
+
+**Soft-start:** engaging the PH-4 switch **pre-charges the downstream bulk capacitance gradually**
+before connecting full power — this is what removes the XT inrush spark. (The single-joint "never
+hot-plug the XT30" hazard is largely tamed once everything sits behind the power_dist's pre-charge.)
+
+**E-stop integration — READ THIS:**
+- The PH-4 switch is a **soft switch**, and the power_dist's **"Lock time" register can HOLD output
+  power for up to ~3277 s after switch-off** (a graceful-shutdown feature for the host). So opening
+  the PH-4 switch is **NOT guaranteed to be an instantaneous cut** unless lock time is 0/disabled —
+  do not treat it as an emergency stop by default.
+- For a true **E-stop**, choose one:
+  1. **(Recommended) Hard disconnect upstream** — keep a NC E-stop / contactor in the **XT90 +V
+     input**; it physically removes power regardless of firmware (mirrors the single-joint E-stop rule).
+  2. **Soft E-stop via PH-4** — wire the NC E-stop into the SWP/SWG loop **and set Lock time = 0** so
+     switch-off cuts immediately. Convenient (reuses the rocker) but firmware-dependent.
+- Either way, **verify the motors go dead on E-stop before any calibration spin.**
+- Optional: `p force on/off/disable` diagnostic commands drive the bus on/off over CAN for software
+  power control.
+
+**VERIFY (per this doc's standard):** the PH-4 **SWP/SWG pin order** + rocker-harness wiring; the
+**default Lock-time** value (confirm 0 if you rely on PH-4 as E-stop); and the PH-3 CAN silk order
+(CAN_H / GND / CAN_L) — all against the mjbots power_dist reference before connecting.
+
+---
+
 ## Magnet mounting
 
 - **Diametrically-magnetized** cylindrical magnet (AS5047P datasheet ref ~6 mm dia, N35H-class)
@@ -185,3 +234,5 @@ silk to silk, never cross CANH/CANL.
 - AUX2 SPI encoder config worked example (MA600): `https://blog.mjbots.com/2025/02/27/configuring-an-off-axis-ma600-encoder-with-moteus/`
 - moteus config reference: `https://mjbots.github.io/moteus/reference/configuration/`
 - AS5047P datasheet: `https://look.ams-osram.com/m/d05ee39221f9857/original/AS5047P-DS000324.pdf`
+- power_dist r4.5b (XT90 in / 6× XT30 / PH-4 switch / PH-3 CAN, soft-start, Lock-time):
+  `https://github.com/mjbots/power_dist` (docs/reference.md) · `https://mjbots.com/products/mjbots-power-dist-r4-5b`
